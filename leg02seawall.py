@@ -30,7 +30,9 @@ async def wave_measure(ctx):
     team = team_role.name
     member = ctx.author
     if db[f"{team}_wave_measure"] != None:
-        embed = discord.Embed(title="Wave Measurement", description=f"You already measured the waves! Start over!", color=0x00ff00)
+        embed = discord.Embed(title="🌊 Wave Measurement 🌊", description=f":x: You already measured the waves! Start over!", color=0x808080)
+        embed.set_thumbnail(url="https://i.ibb.co/pvjtG9y/wave.png")
+        embed.add_field(name="Team", value=team, inline=True)
         await ctx.channel.send(embed=embed)
         reset_seawall(team)
         return
@@ -43,32 +45,38 @@ async def wave_measure(ctx):
         db[f"{team}_wave_measure"] = wave_numbers
         db[f"{team}_wave_player"] = ctx.author.id
 
-        embed = discord.Embed(title="Wave Measurement", description=f"Measurer **{member.mention}**, here are the wave times for {team}: {', '.join(wave_times)}", color=0x00ff00)
+        embed = discord.Embed(title="🌊 Wave Measurement 🌊", description=f"Measurer **{member.mention}**, here are the wave times for {team}: {', '.join(wave_times)}", color=0xADD8E6)
+        embed.add_field(name="Team", value=team, inline=True)
+        embed.set_thumbnail(url="https://i.ibb.co/pvjtG9y/wave.png")
         await ctx.channel.send(embed=embed)
     else:
-        embed = discord.Embed(title="Wave Measurement", description=f"You are the builder! You are not supposed to do this. Start over!", color=0x00ff00)
+        embed = discord.Embed(title="🌊 Wave Measurement 🌊", description=f":x: You are the builder! You are not supposed to do this. Start over!", color=0x808080)
+        embed.add_field(name="Team", value=team, inline=True)
+        embed.set_thumbnail(url="https://i.ibb.co/pvjtG9y/wave.png")
         await ctx.channel.send(embed=embed)
         reset_seawall(team)
 
 # $build-seawall X command
 async def build_seawall(ctx, section: int):
+    member = ctx.author
     team_role = discord.utils.find(lambda r: r.name.startswith('JUTS_TEAM_'), ctx.author.roles)
     if not team_role:
-        await ctx.channel.send("You need to be in a team to use this command.")
+        await ctx.channel.send(f":x: {member.mention}, you need to be in a team to use this command.")
         return
 
     team = team_role.name
     wave_measure = get_wave_measure(team)
-    member = ctx.author
 
     if not wave_measure:
-        await ctx.channel.send("Your team hasn't measured the waves yet. Use `$wave-measure` first.")
+        await ctx.channel.send(f":x: {member.mention}, your team hasn't measured the waves yet. Use `$wave-measure` first.")
         return
 
     if db[f"{team}_build_player"] is None or (db[f"{team}_build_player"] == ctx.author.id and db[f"{team}_wave_player"] != ctx.author.id):
         db[f"{team}_build_player"] = ctx.author.id
         if ctx.created_at.minute % 10 not in get_wave_measure(team):
-            embed = discord.Embed(title="Build Seawall", description=f"Builder **{member.mention}**, you posted at the wrong minute! Start over!", color=0x00ff00)
+            embed = discord.Embed(title="🧱 Build Seawall 🧱", description=f":x: Builder **{member.mention}**, you posted at the wrong minute! Start over!", color=0x808080)
+            embed.add_field(name="Team", value=team, inline=True)
+            embed.set_thumbnail(url="https://i.ibb.co/5RVmv78/wall.png")
             reset_seawall(team)
             await ctx.channel.send(embed=embed)
             return
@@ -76,18 +84,24 @@ async def build_seawall(ctx, section: int):
         prev_section = db.get(f"{team}_seawall_section", 0)
 
         if prev_section != section - 1:
-            embed = discord.Embed(title="Build Seawall", description=f"Builder **{member.mention}**, you posted incorrectly! Start over!", color=0x00ff00)
+            embed = discord.Embed(title="🧱 Build Seawall 🧱", description=f":x: Builder **{member.mention}**, you posted incorrectly! Start over!", color=0x808080)
+            embed.add_field(name="Team", value=team, inline=True)
+            embed.set_thumbnail(url="https://i.ibb.co/5RVmv78/wall.png")
             reset_seawall(team)
             await ctx.channel.send(embed=embed)
             return
         else:
-            # Update seawall progress and last player
-            embed = discord.Embed(title="Build Seawall", description=f"Builder **{member.mention}**, you have successfully built a new section(s) of the seawall. Current: {section}", color=0x00ff00)
+            embed = discord.Embed(title="🧱 Build Seawall 🧱", description=f"🧱 Builder **{member.mention}**, you have successfully built a new section(s) of the seawall.", color=0x808080)
+            embed.add_field(name="Team", value=team, inline=True)
+            embed.add_field(name="Section/s", value=section, inline=True)
+            embed.set_thumbnail(url="https://i.ibb.co/5RVmv78/wall.png")
             db[f"{team}_seawall_section"] = section
             db[f"{team}_wave_measure"] = None
             await ctx.channel.send(embed=embed)
     else:
-        embed = discord.Embed(title="Wave Measurement", description=f"**{member.mention}**, you are the wave measurer! You are not supposed to do this. Start over!", color=0x00ff00)
+        embed = discord.Embed(title="🧱 Build Seawall 🧱", description=f":x: **{member.mention}**, you are the wave measurer! You are not supposed to do this. Start over!", color=0xAA4A44)
+        embed.add_field(name="Team", value=team, inline=True)
+        embed.set_thumbnail(url="https://i.ibb.co/5RVmv78/wall.png")
         await ctx.channel.send(embed=embed)
         reset_seawall(team)
 
@@ -95,12 +109,17 @@ async def build_seawall(ctx, section: int):
 async def check_seawall(ctx):
     team_role = discord.utils.find(lambda r: r.name.startswith('JUTS_TEAM_'), ctx.author.roles)
     if not team_role:
-        await ctx.channel.send("You need to be in a team to use this command.")
+        await ctx.channel.send(":x: You need to be in a team to use this command.")
         return
 
     team = team_role.name
 
-    embed = discord.Embed(title="Seawall Verification", description="The seawall is complete! Great job!", color=0x00ff00)
+    ####### TODO:
+    # TARGET SECTIONS BASED ON THE TIME/TIDE
+
+    embed = discord.Embed(title="✨ Seawall ready for checking! ✨", description="Screenshot this message and send to your FB GC", color=0xDAA520)
+    embed.add_field(name="Team", value=team, inline=True)
+    embed.set_thumbnail(url="https://i.ibb.co/5RVmv78/wall.png")
 
     await ctx.channel.send(embed=embed)
 
@@ -114,7 +133,7 @@ async def start_over(ctx):
     team = team_role.name
     reset_seawall(team)
 
-    embed = discord.Embed(title="Game Reset", description=f"{team} has reset their seawall progress. Start building again!", color=0x0000ff)
+    embed = discord.Embed(title="🔄 Wall Reset 🔄", description=f"**{team}** has reset their seawall progress. Start building again!", color=0x0000ff)
     await ctx.channel.send(embed=embed)
 
 ####################
