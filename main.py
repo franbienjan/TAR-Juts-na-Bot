@@ -43,11 +43,11 @@ async def on_message(ctx):
     #    await leg01oils.process_message(ctx)
 
     # TODO: Fix this to become the team's gc
-    #if ctx.channel.id in [1065231788580012102]:
-    #    await leg02seawall.process_message(ctx)
-
     if ctx.channel.id in [1065231788580012102]:
-        await leg07phosphate.process_message(ctx)
+        await leg02seawall.process_message(ctx)
+
+    #if ctx.channel.id in [1065231788580012102]:
+    #    await leg07phosphate.process_message(ctx)
 
 try:
   token = os.getenv("TOKEN") or ""
