@@ -3,7 +3,7 @@
 
 import os
 import discord
-import leg01boats, leg01oils, leg02seawall, leg07phosphate
+import leg01boats, leg01oils, leg02seawall, leg06crates, leg07phosphate
 
 intents = discord.Intents.default()
 intents.members = True
@@ -43,8 +43,11 @@ async def on_message(ctx):
     #    await leg01oils.process_message(ctx)
 
     # TODO: Fix this to become the team's gc
+    #if ctx.channel.id in [1065231788580012102]:
+    #    await leg02seawall.process_message(ctx)
+
     if ctx.channel.id in [1065231788580012102]:
-        await leg02seawall.process_message(ctx)
+        await leg06crates.process_message(ctx, client)
 
     #if ctx.channel.id in [1065231788580012102]:
     #    await leg07phosphate.process_message(ctx)

@@ -1,13 +1,18 @@
 import random
 import discord
 from replit import db
-from datetime import datetime
+import re
+from datetime import datetime, timedelta
+import pytz
 
 # List of Teams
 teams = {
     'JUTS_TEAM_1',
     'JUTS_TEAM_2'
 }
+
+# Timezone for Manila
+MANILA_TZ = pytz.timezone('Asia/Manila')
 
 # Helper function to format wave times based on random wave measurements
 def time_format(numbers):
@@ -111,6 +116,7 @@ async def build_seawall(ctx, section: int):
             db[f"{team}_seawall_section"] = section
             db[f"{team}_wave_measure"] = None
             await ctx.channel.send(embed=embed)
+            await check_seawall(ctx, team)
     else:
         embed = discord.Embed(title="🧱 Build Seawall 🧱", description=f":x: **{member.mention}**, you are the wave measurer! You are not supposed to do this. Start over!", color=0xAA4A44)
         embed.add_field(name="Team", value=team, inline=True)
@@ -119,26 +125,41 @@ async def build_seawall(ctx, section: int):
         reset_seawall(team)
 
 # $check-seawall command
-async def check_seawall(ctx):
-    rolePermitted = False
-    team = ''
-    for role in ctx.author.roles:
-        if role.name in teams:
-            rolePermitted = True
-            team = role.name
-            break
-    if not rolePermitted:
-        await ctx.channel.send("You need to be in a team to use this command.")
-        return
+async def check_seawall(ctx, team: str):
+    # Retrieve the tide time from the database
+    tide_time_str = db['tide_time']
+    tide_time = datetime.fromisoformat(tide_time_str).astimezone(MANILA_TZ)
 
-    ####### TODO:
-    # TARGET SECTIONS BASED ON THE TIME/TIDE
+    # Get the current time in Manila timezone
+    manila_now = datetime.now(MANILA_TZ)
 
-    embed = discord.Embed(title="✨ Seawall ready for checking! ✨", description="Screenshot this message and send to your FB GC", color=0xDAA520)
-    embed.add_field(name="Team", value=team, inline=True)
-    embed.set_thumbnail(url="https://i.ibb.co/5RVmv78/wall.png")
+    # Calculate the time difference in minutes
+    time_difference = manila_now - tide_time
+    minutes_passed = int(time_difference.total_seconds() // 60)
 
-    await ctx.channel.send(embed=embed)
+    # Determine the target number of sections based on minutes passed
+    if minutes_passed >= 35:
+        target_sections = 5
+    elif minutes_passed >= 25:
+        target_sections = 6
+    else:
+        target_sections = 7
+
+    # Retrieve the current seawall progress for the team
+    seawall_progress_key = f"{team}_seawall_section"
+    current_sections = db.get(seawall_progress_key, 0)  # Default to 0 if not found
+
+    # Check if the number of sections built matches the target
+    if current_sections >= target_sections:
+        embed = discord.Embed(
+            title="✨ Seawall Completed! ✨", 
+            description=f"{team} has successfully built the seawall with the correct number of {target_sections} sections!",
+            color=0xDAA520
+        )
+        embed.add_field(name="Team", value=team, inline=True)
+        embed.set_thumbnail(url="https://i.ibb.co/5RVmv78/wall.png")
+
+        await ctx.channel.send(embed=embed)
 
 # $start-over command
 async def start_over(ctx):
@@ -158,52 +179,47 @@ async def start_over(ctx):
     await ctx.channel.send(embed=embed)
 
 async def seawall_set_tides(ctx, time_str: str):
-    #TODO: ONLY ADMIN CAN DO THIS
-    """
-    Stores the provided time in the Replit database.
+    if not validate_time_format(time_str):
+        await ctx.channel.send("Invalid time format. Please use 'HH:MM AM/PM'. Example: 05:00 PM")
+        return
 
-    :param time_str: Time in the format of "H:MMAM/PM" (e.g., "9:15PM")
-    """
-    # Parse the time string into a datetime object
-    time_obj = datetime.strptime(time_str, "%I:%M%p")
-    current_date = datetime.now().date()  # Get the current date
-    combined_datetime = datetime.combine(current_date, time_obj.time())
-    # Store the time in the database as a string
-    db["tide_time"] = combined_datetime.isoformat()
+    # Get current date in Manila timezone
+    manila_now = datetime.now(MANILA_TZ)
 
-    await ctx.channel.send(f"The tides have been set. {db['tide_time']}")
+    # Parse the time_str
+    tide_time = datetime.strptime(time_str, '%I:%M %p')
 
-def elapsed_minutes():
-    """
-    Calculates the minutes elapsed since the stored time in the Replit database.
+    # Combine today's date with the provided time
+    tide_time_today = manila_now.replace(hour=tide_time.hour, minute=tide_time.minute, second=0, microsecond=0)
 
-    :return: Number of minutes elapsed since the stored time.
-    """
-    # Retrieve the stored time
-    if "tide_time" not in db:
-        return "No time has been set."
+    # Save the tide time to the database
+    db['tide_time'] = tide_time_today.isoformat()
 
-    # Convert the stored time string back to a datetime object
-    stored_time_str = db["tide_time"]
-    stored_time_obj = datetime.fromisoformat(stored_time_str)
-
-    # Get the current time (in the same day, assuming the stored time is today)
-    current_time_obj = datetime.now().replace(second=0, microsecond=0)
-    print(stored_time_obj)
-    print(current_time_obj)
-
-    # Calculate the difference in minutes
-    elapsed_time = current_time_obj - stored_time_obj
-    elapsed_minutes = elapsed_time.total_seconds() / 60
-    print(elapsed_minutes)
-    print(elapsed_time)
-    print(db["tide_time"])
-
-    return int(elapsed_minutes)
+    await ctx.channel.send(f"Tide time has been set to {time_str} for today.")
 
 async def display_tide_time(ctx):
-    await ctx.channel.send(f"The tide time is {db['tide_time']}. It is currently {elapsed_minutes()} since.")
+    if 'tide_time' not in db:
+        await ctx.channel.send("Tide time has not been set yet. Use $seawall-set-tides to set the tide time.")
+        return
 
+    # Retrieve the saved tide time from the database
+    tide_time_str = db['tide_time']
+    tide_time = datetime.fromisoformat(tide_time_str).astimezone(MANILA_TZ)
+
+    # Get the current time in Manila timezone
+    manila_now = datetime.now(MANILA_TZ)
+
+    # Calculate the time difference in minutes
+    time_difference = manila_now - tide_time
+    minutes_passed = int(time_difference.total_seconds() // 60)
+
+    await ctx.channel.send(f"{minutes_passed} minutes have passed since the tide time.")
+    
+# Helper function to validate time format
+def validate_time_format(time_str):
+    pattern = r'^\d{2}:\d{2} (AM|PM)$'
+    return re.match(pattern, time_str)
+    
 ####################
 ## ENTRY FUNCTION ##
 ####################
@@ -229,7 +245,7 @@ async def process_message(ctx):
         await start_over(ctx)
         return
     elif command_name.startswith("$seawall-set-tides "):
-        time_str = command_name.split(" ")[1]  # Extract time string
+        time_str = " ".join(command_name.split(" ")[1:])
         await seawall_set_tides(ctx, time_str)
         return
     elif command_name == "$get-tide-time":
