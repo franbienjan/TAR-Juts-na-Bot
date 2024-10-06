@@ -284,7 +284,6 @@ def process_message(ctx):
 
     if db["kampong-lock"] and command_name != "$kampong-reset":
         return ":lock: The Kampongs are closed now.", False
-
     if command_name == "$kampong-reset":
         response = kampong_reset(ctx)
         return response, embed     

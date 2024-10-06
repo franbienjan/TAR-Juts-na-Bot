@@ -3,7 +3,7 @@
 
 import os
 import discord
-import leg01boats, leg01oils, leg02seawall, leg06crates, leg07phosphate
+import leg01boats, leg01oils, leg02seawall, leg06crates, leg07phosphate, utils
 
 intents = discord.Intents.default()
 intents.members = True
@@ -38,6 +38,12 @@ async def on_message(ctx):
     #    else:
     #        await ctx.channel.send(result)
 
+    # FOR DETOUR ROLES IN LEG 1
+    #if ctx.content.startswith('$oligarchy-dt'):
+    #    await utils.add_role(ctx.guild, ctx.author, 1290854476621680671)
+    #if ctx.content.startswith('$dt-piracy'):
+    #    await utils.add_role(ctx.guild, ctx.author, 1290854359919235142)
+
     # TODO: Fix this to become the team's gc
     #if ctx.channel.id in [1065231788580012102] and ctx.content.startswith('$'):
     #    await leg01oils.process_message(ctx)
@@ -46,8 +52,8 @@ async def on_message(ctx):
     #if ctx.channel.id in [1065231788580012102]:
     #    await leg02seawall.process_message(ctx)
 
-    if ctx.channel.id in [1065231788580012102]:
-        await leg06crates.process_message(ctx, client)
+    #if ctx.channel.id in [1065231788580012102]:
+    #    await leg06crates.process_message(ctx, client)
 
     #if ctx.channel.id in [1065231788580012102]:
     #    await leg07phosphate.process_message(ctx)
