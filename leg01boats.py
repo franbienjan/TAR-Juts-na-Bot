@@ -2,6 +2,16 @@ import discord
 from replit import db
 import json
 
+# List of Teams
+TEAMS = {
+    'JUTS_TEAM_1',
+    'JUTS_TEAM_2',
+    'JUTS_TEAM_3',
+    'JUTS_TEAM_4',
+    'JUTS_TEAM_5',
+    'JUTS_TEAM_6'
+}
+
 # Kampong contents in JSON format
 kampongs_json = '''
 {
@@ -85,13 +95,14 @@ def kampong_reset(ctx):
         return "You do not have permission to initialize the game."
 
     # Initialize the database using individual keys for each team
-    for i in range(1, 9):
-        db[f"JUTS_TEAM_{i}_temperedglasses"] = []
-        db[f"JUTS_TEAM_{i}_location"] = None
-        db[f"JUTS_TEAM_{i}_hasLeft"] = False
+    for team in TEAMS:
+        db[f"{team}_temperedglasses"] = []
+        db[f"{team}_location"] = None
+        db[f"{team}_hasLeft"] = False
 
     db["express_pass_claimed"] = False
     db["boatmen_taken"] = []  # Separate array to track which boatmen are taken
+    db["kampong_lock"] = False #game is no longer playable
 
     return "Game initialization completed successfully!"
 
@@ -100,7 +111,7 @@ def get_player_team(member):
     if not member:
         return None
     for role in member.roles:
-        if role.name.startswith("JUTS_TEAM_"):
+        if role.name in TEAMS:
             return role.name
     return None
 
@@ -271,6 +282,9 @@ def process_message(ctx):
     command_args = command_parts[1:]
     embed = None
 
+    if db["kampong-lock"] and command_name != "$kampong-reset":
+        return ":lock: The Kampongs are closed now.", False
+
     if command_name == "$kampong-reset":
         response = kampong_reset(ctx)
         return response, embed     
@@ -282,5 +296,8 @@ def process_message(ctx):
         destination = command_args[0]
         response, embed = kampong_ride_handler(ctx.author.id, destination, ctx.guild)
         return response, embed
-    else:
-        return "DI KITA GETS!!", embed
+    elif command_name == "$kampong-lock":
+        if not has_hosts_role(ctx.author):
+            return "You do not have permission to initialize the game."
+        db["kampong_lock"] = True
+        return ":lock: Kampong lock has been enabled. Only the owner of the bot can use the bot now.", False

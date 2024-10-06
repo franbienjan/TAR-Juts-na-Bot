@@ -2,10 +2,20 @@ import discord
 import random
 from replit import db
 
+# List of Teams
+TEAMS = {
+    'JUTS_TEAM_1',
+    'JUTS_TEAM_2',
+    'JUTS_TEAM_3',
+    'JUTS_TEAM_4',
+    'JUTS_TEAM_5',
+    'JUTS_TEAM_6'
+}
+
 # Helper function to get the team role from the user's roles
 def get_team_role(member):
     for role in member.roles:
-        if role.name.startswith("JUTS_TEAM_"):
+        if role.name in TEAMS:
             return role.name
     return None
 
@@ -15,9 +25,9 @@ def has_hosts_role(member):
 
 # Initialize everything
 def initialize_barrel():
-  for i in range(1, 9):
-    reset_barrel(f"JUTS_TEAM_{i}")
-    db[f"JUTS_TEAM_{i}_barrels"] = 0
+  for team in TEAMS:
+    reset_barrel(f"{team}")
+    db[f"{team}_barrels"] = 0
 
   return "Oil barrels initialized successfully."
 
