@@ -44,6 +44,10 @@ async def on_message(ctx):
     #if ctx.content.startswith('$dt-piracy'):
     #    await utils.add_role(ctx.guild, ctx.author, 1290854359919235142)
 
+    # FOR DETOUR ROLES IN LEG 2
+    if ctx.content.startswith('$against-sea'):
+        await utils.add_role(ctx.guild, ctx.author, 1292738545613803573)
+
     # TODO: Fix this to become the team's gc
     #if ctx.channel.id in [1065231788580012102] and ctx.content.startswith('$'):
     #    await leg01oils.process_message(ctx)
