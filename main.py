@@ -3,7 +3,7 @@
 
 import os
 import discord
-import leg01boats, leg01oils, leg02seawall, leg06crates, leg07phosphate, utils
+import leg01boats, leg01oils, leg02seawall, leg04instagram, leg06crates, leg07phosphate, utils
 
 intents = discord.Intents.default()
 intents.members = True
@@ -45,8 +45,8 @@ async def on_message(ctx):
     #    await utils.add_role(ctx.guild, ctx.author, 1290854359919235142)
 
     # FOR DETOUR ROLES IN LEG 2
-    if ctx.content.startswith('$against-sea'):
-        await utils.add_role(ctx.guild, ctx.author, 1292738545613803573)
+    #if ctx.content.startswith('$against-sea'):
+    #    await utils.add_role(ctx.guild, ctx.author, 1292738545613803573)
 
     # TODO: Fix this to become the team's gc
     #if ctx.channel.id in [1065231788580012102] and ctx.content.startswith('$'):
@@ -55,6 +55,9 @@ async def on_message(ctx):
     # TODO: Fix this to become the team's gc
     #if ctx.channel.id in [1065231788580012102]:
     #    await leg02seawall.process_message(ctx)
+
+    if ctx.channel.id in [1065231788580012102]:
+        await leg04instagram.process_message(ctx)
 
     #if ctx.channel.id in [1065231788580012102]:
     #    await leg06crates.process_message(ctx, client)
