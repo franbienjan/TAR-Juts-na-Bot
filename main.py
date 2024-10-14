@@ -49,20 +49,22 @@ async def on_message(ctx):
     #    await leg01oils.process_message(ctx)
         
     # FOR DETOUR ROLES IN LEG 2
-    if ctx.content.startswith('$against-sea'):
-        await utils.add_role(ctx.guild, ctx.author, 1292738545613803573)
+    #if ctx.content.startswith('$against-sea'):
+    #    await utils.add_role(ctx.guild, ctx.author, 1292738545613803573)
 
     # TODO: Fix this to become the team's gc
-    if ctx.channel.id in [1065231788580012102, 1075017453911953450]:
-        await leg02seawall.process_message(ctx)
+    #if ctx.channel.id in [1065231788580012102, 1075017453911953450]:
+    #    await leg02seawall.process_message(ctx)
 
     # LEG 04
     #if ctx.channel.id in [1065231788580012102]:
     #    await leg04instagram.process_message(ctx)
 
-    #if ctx.channel.id in [1065231788580012102]:
-    #    await leg06crates.process_message(ctx, client)
+    # LEG 06
+    if ctx.channel.id in [1065231788580012102]:
+        await leg06crates.process_message(ctx)
 
+    # LEG 07
     #if ctx.channel.id in [1065231788580012102]:
     #    await leg07phosphate.process_message(ctx)
 
