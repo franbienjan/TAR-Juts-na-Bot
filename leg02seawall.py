@@ -219,7 +219,11 @@ async def display_tide_time(ctx):
 def validate_time_format(time_str):
     pattern = r'^\d{2}:\d{2} (AM|PM)$'
     return re.match(pattern, time_str)
-    
+
+def reset_all_teams():
+  for team in teams:
+    reset_seawall(team)
+      
 ####################
 ## ENTRY FUNCTION ##
 ####################
@@ -238,9 +242,9 @@ async def process_message(ctx):
         except ValueError:
             await ctx.channel.send("Invalid section number. Please provide a valid number.")
         return
-    elif command_name == "$check-seawall":
-        await check_seawall(ctx)
-        return
+    #elif command_name == "$check-seawall":
+    #    await check_seawall(ctx)
+    #    return
     elif command_name == "$start-over":
         await start_over(ctx)
         return
@@ -250,4 +254,8 @@ async def process_message(ctx):
         return
     elif command_name == "$get-tide-time":
         await display_tide_time(ctx)
+        return
+    elif command_name == "$seawall-reset":
+        reset_all_teams()
+        await ctx.channel.send("Reset done.")
         return

@@ -31,7 +31,7 @@ async def on_message(ctx):
         await ctx.channel.send('Hello!')
 
     # TODO: Fix this to become the team's gc
-    #if ctx.channel.id in [1065231788580012102] and ctx.content.startswith('$'):
+    #if ctx.channel.id in [1065231788580012102, 1075017453911953450] and ctx.content.startswith('$'):
     #    result, embed = leg01boats.process_message(ctx)
     #    if embed != None:
     #        await ctx.channel.send(embed=result)
@@ -44,20 +44,21 @@ async def on_message(ctx):
     #if ctx.content.startswith('$dt-piracy'):
     #    await utils.add_role(ctx.guild, ctx.author, 1290854359919235142)
 
-    # FOR DETOUR ROLES IN LEG 2
-    #if ctx.content.startswith('$against-sea'):
-    #    await utils.add_role(ctx.guild, ctx.author, 1292738545613803573)
-
     # TODO: Fix this to become the team's gc
-    #if ctx.channel.id in [1065231788580012102] and ctx.content.startswith('$'):
+    #if ctx.channel.id in [1065231788580012102, 1075017453911953450] and ctx.content.startswith('$'):
     #    await leg01oils.process_message(ctx)
+        
+    # FOR DETOUR ROLES IN LEG 2
+    if ctx.content.startswith('$against-sea'):
+        await utils.add_role(ctx.guild, ctx.author, 1292738545613803573)
 
     # TODO: Fix this to become the team's gc
-    #if ctx.channel.id in [1065231788580012102]:
-    #    await leg02seawall.process_message(ctx)
+    if ctx.channel.id in [1065231788580012102, 1075017453911953450]:
+        await leg02seawall.process_message(ctx)
 
-    if ctx.channel.id in [1065231788580012102]:
-        await leg04instagram.process_message(ctx)
+    # LEG 04
+    #if ctx.channel.id in [1065231788580012102]:
+    #    await leg04instagram.process_message(ctx)
 
     #if ctx.channel.id in [1065231788580012102]:
     #    await leg06crates.process_message(ctx, client)

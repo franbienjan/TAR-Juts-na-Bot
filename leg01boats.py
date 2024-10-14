@@ -173,6 +173,11 @@ def visit_kampong_handler(member_id, kampong_number, guild):
         tempered_glass_count = len(tempered_glasses)
         response = discord.Embed(title=f"KAMPONG #{kampong_number}",description="",color=0xFFFF00)
         response.add_field(name="Team", value=player_team, inline=True)
+        if db.get("express_pass_claimed", False):
+            response.add_field(name="**:woman_with_headscarf: Shaira:**", value="The **Express Pass** has been taken! :cry:", inline=False)
+            response.set_thumbnail(url="https://i.ibb.co/kB6Tb2g/Screenshot-2024-09-22-at-12-43-07-AM.png")
+            return response, True
+        
         if tempered_glass_count >= 3:
             if not db.get("express_pass_claimed", False):
                 db["express_pass_claimed"] = True
@@ -282,8 +287,9 @@ def process_message(ctx):
     command_args = command_parts[1:]
     embed = None
 
+    #Note: issue with kampong lock
     if db["kampong-lock"] and command_name != "$kampong-reset":
-        return ":lock: The Kampongs are closed now.", False
+        return ":lock: The Kampongs are closed now.", None
     if command_name == "$kampong-reset":
         response = kampong_reset(ctx)
         return response, embed     
