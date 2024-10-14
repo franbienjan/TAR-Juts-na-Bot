@@ -144,8 +144,8 @@ async def claim_crate(msg):
 async def process_message(message):
 
     author = message.author
-    team_id = get_team_id(author)
-    if team_id is None:
+    team = get_team_id(author)
+    if team is None:
         await message.channel.send(f":x: {author.mention}, you need to be in a team to play this game!")
         return
 
@@ -164,13 +164,7 @@ async def process_message(message):
         await claim_crate(message)
 
     # Players can view their current pontoons
-    if message.content.startswith("$view_pontoon"):
-        team_role = next((role for role in message.author.roles if role.name.startswith("JUTS_")), None)
-        if not team_role:
-            await message.channel.send(f"{message.author.mention}, you are not in a team.")
-            return
-
-        team = team_role.name
+    if message.content.startswith("$view-pontoon"):
         pontoon = db["pontoons"].get(team, [])
         if not pontoon:
             await message.channel.send(f"Team {team} has no crates on their pontoon.")
@@ -179,7 +173,7 @@ async def process_message(message):
             await message.channel.send(f"Team {team}'s pontoon: \n" + "\n".join(crate_details))
 
     # Hosts (ADMIN) can view all pontoons
-    if message.content.startswith("$view_all_pontoons") and "GOLD_HOSTS" in [role.name for role in message.author.roles]:
+    if message.content.startswith("$view-all-pontoons") and "GOLD_HOSTS" in [role.name for role in message.author.roles]:
         pontoons = db["pontoons"]
         if not pontoons:
             await message.channel.send("No pontoons currently have any crates.")
