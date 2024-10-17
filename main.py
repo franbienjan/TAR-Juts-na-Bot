@@ -15,6 +15,9 @@ client = discord.Client(intents=intents)
 with open('official-roles.json') as f:
   officialRoles = json.load(f)
 
+with open('official-threads.json') as f:
+  officialThreads = json.load(f)
+
 TEAMCHANNELIDS = [
     1065231788580012102, #LAB ====
     1296050304768413757, #Avail
@@ -27,6 +30,8 @@ TEAMCHANNELIDS = [
     1296050058483208254, #Numbers
     1296050222602129469  #SimpleLife
 ]
+
+LAB = 1065231788580012102
 
 ###############################################
 ##                 TAR Juts                  ##
@@ -57,21 +62,22 @@ async def on_message(ctx):
     # -- Kampongs
     if ctx.channel.id in TEAMCHANNELIDS and ctx.content.startswith('$kampong-'):
         await leg01boats.process_message(ctx)
+
+    # -- Oils
+    if ctx.channel.id in [officialThreads["LEG01-DT-OLIGARCHY"], LAB] and ctx.content.startswith('$'):
+        await leg01oils.process_message(ctx)
     '''
 
     # ======== LEG 02 ==========
-    '''
-    # TODO: Fix this to become the team's gc
-    if ctx.channel.id in [1065231788580012102, 1075017453911953450] and ctx.content.startswith('$'):
-        await leg01oils.process_message(ctx)
-        
+    #''' 
     # -- Detour Roles
     if ctx.content.startswith('$against-sea'):
-        await utils.add_role(ctx.guild, ctx.author, 1292738545613803573)
+        await utils.add_role(ctx.guild, ctx.author, officialRoles['LEG02-DT-SEAWALL'])
 
-    if ctx.channel.id in [1065231788580012102, 1075017453911953450]:
+    # -- Seawall
+    if ctx.channel.id in [officialThreads["LEG02-DT-SEAWALL"], LAB]:
         await leg02seawall.process_message(ctx)
-    '''
+    #'''
 
     # ======== LEG 04 ==========
     '''
