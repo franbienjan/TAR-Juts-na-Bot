@@ -6,7 +6,6 @@ from replit import db
 # List of Teams
 TEAMS = {
   'JUTS_AVAIL',
-  'JUTS_BEN_AND_BEN',
   'JUTS_BUKO_JUTS',
   'JUTS_JUTATAYS',
   'JUTS_JUTS_GIVE_ME_A_REASON',
@@ -14,6 +13,7 @@ TEAMS = {
   'JUTS_NEW_KIDS_ON_THE_BLOCK',
   'JUTS_NUMBERS',
   'JUTS_SIMPLE_LIFE',
+  'JUTS_ANNYEONG_JUTSEYO',
   'JUTS_TEAM_1',
   'JUTS_TEAM_2'
 }
