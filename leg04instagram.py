@@ -1,5 +1,12 @@
 import discord
+import utils
+import json
+from datetime import datetime
+import pytz
 from replit import db
+
+# Timezone for Manila
+MANILA_TZ = pytz.timezone('Asia/Manila')
 
 # List of Teams
 TEAMS = {
@@ -15,6 +22,25 @@ TEAMS = {
   'JUTS_TEAM_1',
   'JUTS_TEAM_2'
 }
+
+TEAMCHANNELIDS = [
+    1065231788580012102, #LAB ====
+    1296050304768413757, #Avail
+    1296050152565379083, #BenAndBen
+    1296050613544685610, #BukoJuts
+    1296049983388258387, #Jutatays
+    1296049893244272744, #JutsGiveMeAReason
+    1296050524533166090, #KhaoKheowStars
+    1296049799677874186, #NewKidsOnTheBlock
+    1296050058483208254, #Numbers
+    1296050222602129469  #SimpleLife
+]
+
+with open('official-roles.json') as f:
+  officialRoles = json.load(f)
+
+with open('official-threads.json') as f:
+  officialThreads = json.load(f)
 
 # Manually set codes and corresponding URLs for each image
 PLACEHOLDER_URLS = [
@@ -60,6 +86,13 @@ def get_team_id(member):
     for role in member.roles:
         if role.name in TEAMS:
             return role.name
+    return None
+
+# Function to get team ID based on user roles
+def get_team_role(member):
+    for role in member.roles:
+        if role.name in TEAMS:
+            return role
     return None
 
 # Function to reset the game (for admin use)
@@ -148,17 +181,60 @@ async def show_available_images(ctx, level):
 ## ENTRY FUNCTION ##
 ####################
 # Function to process user messages
-async def process_message(message):
-    if message.author.bot:
+async def process_message(ctx, client):
+    if ctx.author.bot:
         return
 
-    if message.content.startswith("$charles-start"):
-        await start_game(message)
-    elif message.content.startswith("$charles-lap1 "):
-        await claim_image(message, 1, message.content.split(" ")[1].upper())
-    elif message.content.startswith("$charles-2ndlap "):
-        await claim_image(message, 2, message.content.split(" ")[1].upper())
-    elif message.content.startswith("$charles-finallap "):
-        await claim_image(message, 3, message.content.split(" ")[1].upper())
-    elif message.content.startswith("$charles-show-all "):
-        await show_available_images(message, int(message.content.split(" ")[1]))
+    # -- Get team
+    team = get_team_id(ctx.author)
+    teamRole = get_team_role(ctx.author)
+    if not team:
+        embed = discord.Embed(title="Error", description="You are not part of any registered team.", color=discord.Color.red())
+        await ctx.channel.send(embed=embed)
+        return
+
+    # -- PROMPTS IN TEAM GC ONLY:
+    if ctx.channel.id in TEAMCHANNELIDS:
+        if ctx.content == '$dock-at-monaco':
+            await ctx.channel.send('https://i.ibb.co/zb10Mjn/0402-RB-Primer-Need-For-Speed.png')
+            return
+        elif ctx.content == '$enter-lap1-sector2':
+            await ctx.channel.send('ENTER LAP 1 SECTOR 2 SUCCESS') # TODO: Insert PNG here
+            await utils.add_team_roles(ctx.guild, teamRole, officialRoles['LEG04-LECLERC-1'])
+            # TODO: dapat track the LEVEL of the person
+        elif ctx.content == '$enter-2ndlap-sector2':
+            await ctx.channel.send('ENTER LAP 2 SECTOR 2 SUCCESS') # TODO: Insert PNG here
+            await utils.add_team_roles(ctx.guild, teamRole, officialRoles['LEG04-LECLERC-2'])
+            # TODO: dapat track the LEVEL of the person
+        elif ctx.content == '$enter-finallap-sector2':
+            await ctx.channel.send('ENTER LAP 78 SECTOR 2 SUCCESS') # TODO: Insert PNG here
+            await utils.add_team_roles(ctx.guild, teamRole, officialRoles['LEG04-LECLERC-3'])
+            # TODO: dapat track the LEVEL of the person
+        elif ctx.content == '$finish-hunt-aliceguo':
+            await ctx.channel.send('FINISH HUNT ALICE GUO')
+            await utils.add_team_roles(ctx.guild, teamRole, officialRoles['LEG04-MONACO-HUNT'])
+            # TODO: dapat track the LEVEL of the person
+        elif ctx.content == '$finish-lap1-sector3':
+            await ctx.channel.send('FINISH LAP 1 SECTOR 3 SUCCESS') # TODO: Insert PNG here
+            mainLobby = client.get_channel(officialThreads['MAIN-LOBBY'])
+            timeNow = datetime.now().astimezone(MANILA_TZ).strftime(r"%I:%M:%S %p")
+            await mainLobby.send(f'🏁 RACERS, START YOUR ENGINES...\n{timeNow}') #Update with correct update
+            # TODO: dapat track the LEVEL of the person
+        elif ctx.content == '$finish-2ndlap-sector3':
+            await ctx.channel.send('FINISH LAP 2 SECTOR 3 SUCCESS') # TODO: Insert PNG here
+            mainLobby = client.get_channel(officialThreads['MAIN-LOBBY'])
+            timeNow = datetime.now().astimezone(MANILA_TZ).strftime(r"%I:%M:%S %p")
+            await mainLobby.send(f'🏁 TEST...\n{timeNow}') #Update with correct update
+            # TODO: dapat track the LEVEL of the person
+            
+    # -- INSTAGRAM TASK FOR CHARLES LECLERC
+    if ctx.content.startswith("$charles-start"):
+        await start_game(ctx)
+    elif ctx.content.startswith("$charles-lap1 "):
+        await claim_image(ctx, 1, ctx.content.split(" ")[1].upper())
+    elif ctx.content.startswith("$charles-2ndlap "):
+        await claim_image(ctx, 2, ctx.content.split(" ")[1].upper())
+    elif ctx.content.startswith("$charles-finallap "):
+        await claim_image(ctx, 3, ctx.content.split(" ")[1].upper())
+    elif ctx.content.startswith("$charles-all "):
+        await show_available_images(ctx, int(ctx.content.split(" ")[1]))

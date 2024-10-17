@@ -52,7 +52,7 @@ def has_completed_identification(team_id):
 # Function to get team ID based on user roles
 def get_team_id(member):
   for role in member.roles:
-    if role.name in teams:
+    if role.name in TEAMS:
       return role.name
   return None
 

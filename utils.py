@@ -19,6 +19,13 @@ async def add_role(guild, author, roleId):
     role = guild.get_role(roleId)
     await author.add_roles(role)
 
+# Function that adds roles to the entire team.
+async def add_team_roles(guild, role, goalRole):
+
+    targetRole = guild.get_role(goalRole)
+    for member in role.members:
+        await member.add_roles(targetRole)
+
 # Function that checks whether the channel's valid inputs.
 def check_channel(channelId, targetChannelName):
     return channelId in (threads[targetChannelName]['id'],

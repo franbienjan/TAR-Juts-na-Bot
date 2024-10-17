@@ -66,10 +66,10 @@ async def on_message(ctx):
     # -- Oils
     if ctx.channel.id in [officialThreads["LEG01-DT-OLIGARCHY"], LAB] and ctx.content.startswith('$'):
         await leg01oils.process_message(ctx)
-    '''
+    #'''
 
     # ======== LEG 02 ==========
-    #''' 
+    ''' 
     # -- Detour Roles
     if ctx.content.startswith('$against-sea'):
         await utils.add_role(ctx.guild, ctx.author, officialRoles['LEG02-DT-SEAWALL'])
@@ -80,10 +80,10 @@ async def on_message(ctx):
     #'''
 
     # ======== LEG 04 ==========
-    '''
-    if ctx.channel.id in [1065231788580012102]:
-        await leg04instagram.process_message(ctx)
-    '''
+    #'''
+    # -- Everything Leg 04 is here.
+    await leg04instagram.process_message(ctx, client)
+    #'''
     
     # ======== LEG 06 ==========
     '''
