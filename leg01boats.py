@@ -292,7 +292,7 @@ async def process_message(ctx):
     if command_name == "$kampong-reset":
         response = kampong_reset(ctx)
         await ctx.channel.send(response)
-    elif command_name == "$visit-kampong":
+    elif command_name == "$kampong-visit":
         kampong_number = command_args[0]
         await visit_kampong_handler(ctx, kampong_number)
     elif command_name == "$kampong-ride":

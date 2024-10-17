@@ -37,7 +37,6 @@ TEAMCHANNELIDS = [
 async def on_ready():
     print('We have logged in as {0.user}'.format(client))
 
-
 @client.event
 async def on_message(ctx):
 
@@ -48,7 +47,7 @@ async def on_message(ctx):
         await ctx.channel.send('Hello!')
 
     # ======== LEG 01 ==========
-    print(officialRoles['LEG01-DT-OLIGARCHY'])
+    '''
     # -- Detour Roles
     if ctx.channel.id in TEAMCHANNELIDS and ctx.content == '$oligarchy-dt':
         await utils.add_role(ctx.guild, ctx.author, officialRoles['LEG01-DT-OLIGARCHY'])
@@ -56,32 +55,41 @@ async def on_message(ctx):
         await utils.add_role(ctx.guild, ctx.author, officialRoles['LEG01-DT-PIRACY'])
 
     # -- Kampongs
-    if ctx.channel.id in TEAMCHANNELIDS and ctx.content.startswith('$'):
+    if ctx.channel.id in TEAMCHANNELIDS and ctx.content.startswith('$kampong-'):
         await leg01boats.process_message(ctx)
+    '''
 
+    # ======== LEG 02 ==========
+    '''
     # TODO: Fix this to become the team's gc
-    #if ctx.channel.id in [1065231788580012102, 1075017453911953450] and ctx.content.startswith('$'):
-    #    await leg01oils.process_message(ctx)
+    if ctx.channel.id in [1065231788580012102, 1075017453911953450] and ctx.content.startswith('$'):
+        await leg01oils.process_message(ctx)
         
-    # FOR DETOUR ROLES IN LEG 2
-    #if ctx.content.startswith('$against-sea'):
-    #    await utils.add_role(ctx.guild, ctx.author, 1292738545613803573)
+    # -- Detour Roles
+    if ctx.content.startswith('$against-sea'):
+        await utils.add_role(ctx.guild, ctx.author, 1292738545613803573)
 
-    # TODO: Fix this to become the team's gc
-    #if ctx.channel.id in [1065231788580012102, 1075017453911953450]:
-    #    await leg02seawall.process_message(ctx)
+    if ctx.channel.id in [1065231788580012102, 1075017453911953450]:
+        await leg02seawall.process_message(ctx)
+    '''
 
-    # LEG 04
-    #if ctx.channel.id in [1065231788580012102]:
-    #    await leg04instagram.process_message(ctx)
-
-    # LEG 06
+    # ======== LEG 04 ==========
+    '''
+    if ctx.channel.id in [1065231788580012102]:
+        await leg04instagram.process_message(ctx)
+    '''
+    
+    # ======== LEG 06 ==========
+    '''
     if ctx.channel.id in [1065231788580012102]:
         await leg06crates.process_message(ctx)
-
-    # LEG 07
-    #if ctx.channel.id in [1065231788580012102]:
-    #    await leg07phosphate.process_message(ctx)
+    '''
+    
+    # ======== LEG 07 ==========
+    '''
+    if ctx.channel.id in [1065231788580012102]:
+        await leg07phosphate.process_message(ctx)
+    '''
 
 try:
   token = os.getenv("TOKEN") or ""
