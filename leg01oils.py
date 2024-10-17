@@ -4,12 +4,17 @@ from replit import db
 
 # List of Teams
 TEAMS = {
-    'JUTS_TEAM_1',
-    'JUTS_TEAM_2',
-    'JUTS_TEAM_3',
-    'JUTS_TEAM_4',
-    'JUTS_TEAM_5',
-    'JUTS_TEAM_6'
+  'JUTS_AVAIL',
+  'JUTS_BEN_AND_BEN',
+  'JUTS_BUKO_JUTS',
+  'JUTS_JUTATAYS',
+  'JUTS_JUTS_GIVE_ME_A_REASON',
+  'JUTS_KHAO_KHEOW_STARS',
+  'JUTS_NEW_KIDS_ON_THE_BLOCK',
+  'JUTS_NUMBERS',
+  'JUTS_SIMPLE_LIFE',
+  'JUTS_TEAM_1',
+  'JUTS_TEAM_2'
 }
 
 # Helper function to get the team role from the user's roles
@@ -33,7 +38,7 @@ def initialize_barrel():
 
 # Function to check if the team has successfully filled the barrel
 def check_success(volume):
-    return volume in [3, 5, 8]
+  return volume in [3, 5, 8]
 
 def reset_barrel(team):
   db[f"{team}_volume"] = 100
