@@ -259,11 +259,11 @@ async def process_message(ctx, client):
             # TODO: dapat track the LEVEL of the person
             
     # -- INSTAGRAM TASK FOR CHARLES LECLERC
-    if ctx.content.startswith("$charles-lap1 ") and currentLap == 1:
+    if ctx.channel.id == officialThreads['LEG04-LECLERC-1'] and ctx.content.startswith("$charles-lap1 ") and currentLap == 1:
         await claim_image(ctx, 1, ctx.content.split(" ")[1].upper())
-    elif ctx.content.startswith("$charles-2ndlap ") and currentLap == 2:
+    elif ctx.channel.id == officialThreads['LEG04-LECLERC-2'] and ctx.content.startswith("$charles-2ndlap ") and currentLap == 2:
         await claim_image(ctx, 2, ctx.content.split(" ")[1].upper())
-    elif ctx.content.startswith("$charles-finallap ") and currentLap == 3:
+    elif ctx.channel.id == officialThreads['LEG04-LECLERC-3'] and ctx.content.startswith("$charles-finallap ") and currentLap == 3:
         await claim_image(ctx, 3, ctx.content.split(" ")[1].upper())
     #elif ctx.content.startswith("$charles-all "):
     #    await show_available_images(ctx, int(ctx.content.split(" ")[1]))
