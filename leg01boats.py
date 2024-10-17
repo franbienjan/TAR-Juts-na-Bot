@@ -92,7 +92,7 @@ def has_hosts_role(member):
 # Initialization command
 def kampong_reset(ctx):
     if not has_hosts_role(ctx.author):
-        return "You do not have permission to initialize the game."
+        "You do not have permission to initialize the game."
 
     # Initialize the database using individual keys for each team
     for team in TEAMS:
@@ -121,28 +121,27 @@ def update_team_location(team, kampong_number):
     db[f"{team}_location"] = kampong_number
 
 # Visit kampong handler
-def visit_kampong_handler(member_id, kampong_number, guild):
+async def visit_kampong_handler(ctx, kampong_number):
+    member_id = ctx.author.id
+    guild = ctx.guild
     try:
         kampong_number = int(kampong_number)  # Ensure kampong_number is an integer
     except ValueError:
-        return ":x: Please enter a valid kampong number.", None
+        await ctx.channel.send(":x: Please enter a valid kampong number.")
 
     if kampong_number < 1 or kampong_number > 32:
-        return ":x: Please enter a valid kampong number between 1 and 32.", None
+        await ctx.channel.send(":x: Please enter a valid kampong number between 1 and 32.")
 
     member = guild.get_member(member_id)
     if not member:
-        return ":x: Member not found.", None
+        await ctx.channel.send(":x: Member not found.")
 
     player_team = get_player_team(member)
     if not player_team:
-        return ":x: You are not in a team. Please join a team to play.", None
-
-    # Initialize embed
-    embed = None
+        await ctx.channel.send(":x: You are not in a team. Please join a team to play.")
 
     if db.get(f"{player_team}_hasLeft", False):
-        return ":x: You may no longer explore the Kampongs.", None
+        await ctx.channel.send(":x: You may no longer explore the Kampongs.")
 
     update_team_location(player_team, kampong_number)
 
@@ -167,7 +166,7 @@ def visit_kampong_handler(member_id, kampong_number, guild):
         response.add_field(name="", value="The first team to visit the Queen of Bangsamoro Pop and Queen of Tempered Glass, :woman_with_headscarf: **Shaira** :woman_with_headscarf:, somewhere in the Kampongs, after visiting and obtaining all three legendary tempered glass pieces will win the coveted **Express Pass**, which is valid until the fourth leg of the race.", inline=False)
         response.add_field(name="Number of Tempered Glass Pieces", value=f"{len(tempered_glasses)}/3", inline=False)
         response.set_thumbnail(url="https://i.ibb.co/hXc57ZL/image.png")
-        return response, True
+        await ctx.channel.send(embed=response)
 
     elif content == "Shaira":
         tempered_glass_count = len(tempered_glasses)
@@ -176,7 +175,7 @@ def visit_kampong_handler(member_id, kampong_number, guild):
         if db.get("express_pass_claimed", False):
             response.add_field(name="**:woman_with_headscarf: Shaira:**", value="The **Express Pass** has been taken! :cry:", inline=False)
             response.set_thumbnail(url="https://i.ibb.co/kB6Tb2g/Screenshot-2024-09-22-at-12-43-07-AM.png")
-            return response, True
+            await ctx.channel.send(embed=response)
         
         if tempered_glass_count >= 3:
             if not db.get("express_pass_claimed", False):
@@ -184,26 +183,25 @@ def visit_kampong_handler(member_id, kampong_number, guild):
                 response.add_field(name="**:woman_with_headscarf: Shaira:**", value=f"Congratulations, Team {player_team}! You have earned the **Express Pass**! Send a screenshot of this message to your Team GC to claim it", inline=False)
                 response.set_thumbnail(url="https://i.ibb.co/kB6Tb2g/Screenshot-2024-09-22-at-12-43-07-AM.png")
                 response.set_image(url="https://i.ibb.co/0D369YJ/Screenshot-2024-09-22-at-11-47-33-AM.png")
-                return response, True
+                await ctx.channel.send(embed=response)
             else:
                 response.add_field(name="**:woman_with_headscarf: Shaira:**", value="The **Express Pass** has been taken! :cry:", inline=False)
                 response.set_thumbnail(url="https://i.ibb.co/kB6Tb2g/Screenshot-2024-09-22-at-12-43-07-AM.png")
-                return response, True
+                await ctx.channel.send(embed=response)
         else:
             response.add_field(name="**:woman_with_headscarf: Shaira:**", value="You need 3 tempered glasses to claim the Express Pass. Please go back to me when you have all 3.", inline=False)
             response.add_field(name="Number of Tempered Glass Pieces", value=f"{len(tempered_glasses)}/3", inline=False)
             response.set_thumbnail(url="https://i.ibb.co/kB6Tb2g/Screenshot-2024-09-22-at-12-43-07-AM.png")
-            return response, True
+            await ctx.channel.send(embed=response)
 
     elif content == "clue":
         clue = kampongs.get(f"{kampong_number}_clue", None)
         if clue:
-            embed = True
             response = discord.Embed(title=f"KAMPONG #{kampong_number}",description="",color=0x0F0000)
             response.add_field(name="Team", value=player_team, inline=True)
             response.add_field(name="", value="This photo shall represent the location of where you should go next. You may visit a boatman to take you to this place, or you may continue visiting other Kampongs to find another clue. ", inline=False)
             response.set_image(url=clue)
-            return response, embed
+            await ctx.channel.send(embed=response)
         else:
             return f"No new clue found in Kampong {kampong_number}.", embed
 
@@ -221,32 +219,34 @@ def visit_kampong_handler(member_id, kampong_number, guild):
             response.add_field(name=f":sailboat: Boatman **{boatmanName}:**", value="Hello, I can take you by water taxi to your next clue if you send me the correct location. However, first come, first served. Replace X with the name of your next location, in all caps, with no spaces: `$kampong-ride X`", inline=False)
             response.add_field(name="", value="**Note:** Once you are correct, there's no going back to the other Kampongs.", inline=False)
             response.add_field(name="", value="**Hint:** The Answer has multiple words, so type them together. Example: Brunei River, you must type `BRUNEIRIVER` with no spaces and all caps", inline=False)
-        return response, True
+        await ctx.channel.send(embed=response)
 
     else:
         response = discord.Embed(title=f"KAMPONG #{kampong_number}",description="",color=0xAA4A44)
         response.add_field(name="Team", value=player_team, inline=True)
         response.add_field(name="", value="There is nothing at this Kampong.", inline=False)
-        return response, True
+        await ctx.channel.send(embed=response)
 
 # Kampongride handler
-def kampong_ride_handler(member_id, destination, guild):
+async def kampong_ride_handler(ctx, destination):
+    member_id = ctx.author.id
+    guild = ctx.guild
     member = guild.get_member(member_id)
     if not member:
-        return ":x: Member not found.", None
+        await ctx.channel.send(":x: Member not found.")
 
     player_team = get_player_team(member)
     if not player_team:
-        return ":x: You are not in a team. Please join a team to play.", None
+        await ctx.channel.send(":x: You are not in a team. Please join a team to play.")
 
     if db.get(f"{player_team}_hasLeft", False):
-        return ":x: You may no longer explore the Kampongs.", None
+        await ctx.channel.send(":x: You may no longer explore the Kampongs.")
 
     # Retrieve team's current kampong location from the database
     team_location = db.get(f"{player_team}_location", None)
 
     if not team_location:
-        return f":x: Your team {player_team} needs to be at a kampong with a boatman to ride!", None
+        await ctx.channel.send(f":x: Your team {player_team} needs to be at a kampong with a boatman to ride!")
 
     # Check if the kampong has a boatman
     if kampongs.get(f"{team_location}_content") == "boatman":
@@ -258,12 +258,12 @@ def kampong_ride_handler(member_id, destination, guild):
         
         if team_location in db["boatmen_taken"]:    
             response.add_field(name=f":sailboat: Boatman **{boatmanName}:**", value="Sorry, no more trips today. Already finished my quota. Find another boatman!", inline=False)
-            return response, True
+            await ctx.channel.send(embed=response)
 
         if destination.upper() != "MERCUDIRGAHAYU60":
             print(f"test {destination}")
             response.add_field(name=f":sailboat: Boatman **{boatmanName}:**", value="I'm sorry. I don't know where that is. Can you try again?", inline=False)
-            return response, True
+            await ctx.channel.send(embed=response)
             
         # Mark the boatman as taken
         db["boatmen_taken"].append(team_location)
@@ -272,37 +272,34 @@ def kampong_ride_handler(member_id, destination, guild):
         response.add_field(name=f":sailboat: Boatman **{boatmanName}:**", value="Alright! Let's go!", inline=False)
         response.add_field(name="", value="Send a screenshot of this message to your Team GC to receive your next clue.", inline=False)
         response.set_image(url="https://i.ibb.co/Gn8P6DY/Memorial-Bandar-Seri-Begawan.png")
-        return response, True
+        await ctx.channel.send(embed=response)
 
-    return ":x: There is no boatman available at this kampong.", None
+    await ctx.channel.send(":x: There is no boatman available at this kampong.")
 
 ####################
 ## ENTRY FUNCTION ##
 ####################
 # Function to process user messages and return results as an embed message
-def process_message(ctx):
+async def process_message(ctx):
     # Parse command details
     command_parts = ctx.content.split()
     command_name = command_parts[0].lower()
     command_args = command_parts[1:]
-    embed = None
 
     #Note: issue with kampong lock
     if db["kampong-lock"] and command_name != "$kampong-reset":
-        return ":lock: The Kampongs are closed now.", None
+        await ctx.channel.send(":lock: The Kampongs are closed now.")
     if command_name == "$kampong-reset":
         response = kampong_reset(ctx)
-        return response, embed     
+        await ctx.channel.send(response)
     elif command_name == "$visit-kampong":
         kampong_number = command_args[0]
-        response, embed = visit_kampong_handler(ctx.author.id, kampong_number, ctx.guild)
-        return response, embed
+        await visit_kampong_handler(ctx, kampong_number)
     elif command_name == "$kampong-ride":
         destination = command_args[0]
-        response, embed = kampong_ride_handler(ctx.author.id, destination, ctx.guild)
-        return response, embed
+        await kampong_ride_handler(ctx, destination)
     elif command_name == "$kampong-lock":
         if not has_hosts_role(ctx.author):
-            return "You do not have permission to initialize the game."
+            await ctx.channel.send("You do not have permission to initialize the game.")
         db["kampong_lock"] = True
-        return ":lock: Kampong lock has been enabled. Only the owner of the bot can use the bot now.", False
+        await ctx.channel.send(":lock: Kampong lock has been enabled. Only the owner of the bot can use the bot now.")

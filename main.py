@@ -3,6 +3,7 @@
 
 import os
 import discord
+import json
 import leg01boats, leg01oils, leg02seawall, leg04instagram, leg06crates, leg07phosphate, utils
 
 intents = discord.Intents.default()
@@ -10,6 +11,22 @@ intents.members = True
 intents.message_content = True
 
 client = discord.Client(intents=intents)
+
+with open('official-roles.json') as f:
+  officialRoles = json.load(f)
+
+TEAMCHANNELIDS = [
+    1065231788580012102, #LAB ====
+    1296050304768413757, #Avail
+    1296050152565379083, #BenAndBen
+    1296050613544685610, #BukoJuts
+    1296049983388258387, #Jutatays
+    1296049893244272744, #JutsGiveMeAReason
+    1296050524533166090, #KhaoKheowStars
+    1296049799677874186, #NewKidsOnTheBlock
+    1296050058483208254, #Numbers
+    1296050222602129469  #SimpleLife
+]
 
 ###############################################
 ##                 TAR Juts                  ##
@@ -30,19 +47,17 @@ async def on_message(ctx):
     if ctx.content.startswith('$hello'):
         await ctx.channel.send('Hello!')
 
-    # TODO: Fix this to become the team's gc
-    #if ctx.channel.id in [1065231788580012102, 1075017453911953450] and ctx.content.startswith('$'):
-    #    result, embed = leg01boats.process_message(ctx)
-    #    if embed != None:
-    #        await ctx.channel.send(embed=result)
-    #    else:
-    #        await ctx.channel.send(result)
+    # ======== LEG 01 ==========
+    print(officialRoles['LEG01-DT-OLIGARCHY'])
+    # -- Detour Roles
+    if ctx.channel.id in TEAMCHANNELIDS and ctx.content == '$oligarchy-dt':
+        await utils.add_role(ctx.guild, ctx.author, officialRoles['LEG01-DT-OLIGARCHY'])
+    elif ctx.channel.id in TEAMCHANNELIDS and ctx.content == '$dt-piracy':
+        await utils.add_role(ctx.guild, ctx.author, officialRoles['LEG01-DT-PIRACY'])
 
-    # FOR DETOUR ROLES IN LEG 1
-    #if ctx.content.startswith('$oligarchy-dt'):
-    #    await utils.add_role(ctx.guild, ctx.author, 1290854476621680671)
-    #if ctx.content.startswith('$dt-piracy'):
-    #    await utils.add_role(ctx.guild, ctx.author, 1290854359919235142)
+    # -- Kampongs
+    if ctx.channel.id in TEAMCHANNELIDS and ctx.content.startswith('$'):
+        await leg01boats.process_message(ctx)
 
     # TODO: Fix this to become the team's gc
     #if ctx.channel.id in [1065231788580012102, 1075017453911953450] and ctx.content.startswith('$'):
