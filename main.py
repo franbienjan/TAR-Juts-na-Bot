@@ -80,7 +80,7 @@ async def on_message(ctx):
     #'''
 
     # ======== LEG 04 ==========
-    #'''
+    '''
     # -- Everything Leg 04 is here.
     if ctx.content.startswith('$'):
         await leg04instagram.process_message(ctx, client)
@@ -88,15 +88,15 @@ async def on_message(ctx):
     
     # ======== LEG 06 ==========
     '''
-    if ctx.channel.id in [1065231788580012102]:
+    if ctx.channel.id in [officialThreads["LEG06-NEURALINK"], LAB]:
         await leg06crates.process_message(ctx)
     '''
     
     # ======== LEG 07 ==========
-    '''
-    if ctx.channel.id in [1065231788580012102]:
+    #'''
+    if (ctx.channel.id in TEAMCHANNELIDS or ctx.channel.id == 1288522309149261914) and ctx.content.startswith('$'):
         await leg07phosphate.process_message(ctx)
-    '''
+    #'''
 
 try:
   token = os.getenv("TOKEN") or ""

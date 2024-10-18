@@ -6,8 +6,8 @@ from replit import db
 DISTRICTS = ["ANABAR", "BAITI", "BUADA", "NIBOK", "UABOE"]
 SOIL_TYPES = ["Clay A", "Clay B", "Sand A", "Sand B", "Silt A", "Silt B"]
 SOIL_TYPES_EQUIVALENT = {"Clay A" : "2mm", "Clay B" : "0.5mm", "Sand A" : "0.05mm", "Sand B" : "0.02mm", "Silt A" : "0.002mm", "Silt B" : "Pan"}
-SOIL_MINIMUM_THRESHOLDS = 10 #300
-SOIL_MAXIMUM_THRESHOLDS = 100 #400
+SOIL_MINIMUM_THRESHOLDS = 300
+SOIL_MAXIMUM_THRESHOLDS = 400
 
 # List of Teams
 TEAMS = {
@@ -21,7 +21,8 @@ TEAMS = {
   'JUTS_SIMPLE_LIFE',
   'JUTS_ANNYEONG_JUTSEYO',
   'JUTS_TEAM_1',
-  'JUTS_TEAM_2'
+  'JUTS_TEAM_2',
+  'JUTS_TEAM_3'
 }
 
 # Add this to your constants
@@ -168,7 +169,7 @@ def is_soil_submitted(team_id):
 
 # Function to reset all values for all teams
 def reset_all_teams():
-  for team in teams:
+  for team in TEAMS:
     reset_team_values(team)
 
 def get_soil_classification(clay_percent, silt_percent, sand_percent):
@@ -377,7 +378,7 @@ async def process_message(message):
       isNewSoil = add_identified_soil(team_id, soil_guess)
       identified_soils = get_identified_soils(team_id)
       if has_completed_identification(team_id):
-        await message.channel.send(f"🎉 {author.mention}, congratulations! Your team has identified all 6 different soil types and completed the mission! INSERT FINAL CLUE HERE")
+        await message.channel.send(f"🎉 {author.mention}, congratulations! Your team has identified all 6 different soil types and completed the mission!\n\nhttps://i.ibb.co/w05wnJM/0708-RI-Finish-Line.png")
       else:
         if isNewSoil:
           embed = discord.Embed(title=":mag: SOIL IDENTIFIED! :mag_right:", color=0x00ff00)
