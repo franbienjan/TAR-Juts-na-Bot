@@ -121,9 +121,9 @@ async def monaco_reset(ctx):
     await ctx.channel.send(embed=embed)
 
 # Function to claim an image by 6-digit code
-async def claim_image(ctx, level, code):
+async def claim_image(ctx, level, code, client):
     team = get_team_id(ctx.author)
-
+    teamRole = get_team_role(ctx.author)
     # Check if the team already claimed an image for the current level
     if level in db["team_data"][team]["claimed_images"]:
         embed = discord.Embed(title="Error", description=f"{team} has already claimed an image for Level {level}.", color=discord.Color.red())
@@ -135,6 +135,9 @@ async def claim_image(ctx, level, code):
     images = db[images_key]
     available_images = images[:4] if level == 2 else images[:(db["monaco-lap3-ig"] + 1)] if level == 3 else images
 
+    print(code)
+    print(level)
+    print(available_images)
     # Check if the provided code matches an available image
     for img in available_images:
         if img["code"] == code:
@@ -142,11 +145,15 @@ async def claim_image(ctx, level, code):
             images.remove(img)  # Remove the claimed image
             db[images_key] = images  # Update the database
 
-            embed = discord.Embed(title="Success", description=f"Image {code} has been successfully claimed by {team}!", color=discord.Color.green())
+            embed = discord.Embed(title="Success", description=f"Image {code} has been successfully claimed by **{team}**!", color=discord.Color.green())
+            embed.set_image(url=img["url"])
             await ctx.channel.send(embed=embed)
-            await ctx.author.send("THIS IS THE CLUE")
+            await ctx.author.send("UPDATE THIS WITH THE CLUE") # TODO: Add proper clue
+            await show_available_images(ctx, client, level)
+            await utils.remove_team_roles(ctx.guild, teamRole, officialRoles[f'LEG04-LECLERC-{level}'])
 
             # Replace images based on the level
+            '''
             if level == 2 and len(images) < 4:
                 print("pumapasok ba here")
                 new_image = LEVEL_2_IMAGES.pop(0)
@@ -157,20 +164,22 @@ async def claim_image(ctx, level, code):
                 new_image = LEVEL_3_IMAGES.pop(0)
                 images.append(new_image)
                 await ctx.channel.send(embed=discord.Embed(description="A new image has been added to Level 3.", color=discord.Color.blue()))
-
-            await show_available_images(ctx, level)
+            '''
             return
 
 # Function to show all available images for a specific level
-async def show_available_images(ctx, level):
+async def show_available_images(ctx, client, level):
     if level == 1:
         images = db.get("level1_images", [])
         command = "$charles-lap1 xxxxxxxx"
+        leclercChannel = client.get_channel(officialThreads['LEG04-LECLERC-1'])
     elif level == 2:
         images = db.get("level2_images", [])[:4]  # Show first 4
         command = "$charles-2ndlap xxxxxxxx"
+        leclercChannel = client.get_channel(officialThreads['LEG04-LECLERC-1'])
     elif level == 3:
         command = "$charles-finallap xxxxxxxx"
+        leclercChannel = client.get_channel(officialThreads['LEG04-LECLERC-1'])
         images = db.get("level3_images", [])[:(db["monaco-lap3-ig"] + 1)]  # Show based on teams ON LEVEL 3
     else:
         embed = discord.Embed(title="Error", description="Invalid level number.", color=discord.Color.red())
@@ -178,10 +187,11 @@ async def show_available_images(ctx, level):
         return
 
     available_codes = '\n'.join(img["url"] for img in images)
+    timeNow = datetime.now().astimezone(MANILA_TZ).strftime(r"%I:%M:%S %p")
     embed = discord.Embed(title=f":camera_with_flash: LECLERC LAP {level}", description=f"Find these in Charles Leclerc's Instagram.\nUse the command `{command}` where xxxxxxxx is the date of the post in yyyymmdd format.", color=discord.Color.red())
     embed.add_field(name="Available Images", value=available_codes, inline=False)
-    embed.add_field(name="List since", value=f"{datetime.now()}", inline=False)
-    await ctx.channel.send(embed=embed)
+    embed.add_field(name="List since", value=f"{timeNow}", inline=False)
+    await leclercChannel.send(embed=embed)
 
 ####################
 ## ENTRY FUNCTION ##
@@ -214,56 +224,71 @@ async def process_message(ctx, client):
             return
         elif ctx.content == '$enter-lap1-sector2':
             if db["monaco-"+team+"-lap"] == 0:
-                await ctx.channel.send('ENTER LAP 1 SECTOR 2 SUCCESS') # TODO: Insert PNG here
+                await ctx.channel.send('TODO: Insert PNG Clue Here') # TODO: Insert PNG here
                 await utils.add_team_roles(ctx.guild, teamRole, officialRoles['LEG04-LECLERC-1'])
-                await show_available_images(ctx, 1)
+                await show_available_images(ctx, client, 1)
                 db["monaco-"+team+"-lap"] = 1
             return
         elif ctx.content == '$enter-2ndlap-sector2':
             print(db["monaco-"+team+"-lap"])
             if db["monaco-"+team+"-lap"] == 1:
-                await ctx.channel.send('ENTER LAP 2 SECTOR 2 SUCCESS') # TODO: Insert PNG here
+                await ctx.channel.send('TODO: Insert PNG Clue Here') # TODO: Insert PNG here
                 await utils.add_team_roles(ctx.guild, teamRole, officialRoles['LEG04-LECLERC-2'])
-                await show_available_images(ctx, 2)
+                await show_available_images(ctx, client, 2)
                 db["monaco-"+team+"-lap"] = 2
             return
         elif ctx.content == '$enter-finallap-sector2':
             if db["monaco-"+team+"-lap"] == 2:
                 db["monaco-lap3-ig"] = db["monaco-lap3-ig"] + 1
-                await ctx.channel.send('ENTER LAP 78 SECTOR 2 SUCCESS') # TODO: Insert PNG here
+                await ctx.channel.send('TODO: Insert PNG Clue Here') # TODO: Insert PNG clue here
                 await utils.add_team_roles(ctx.guild, teamRole, officialRoles['LEG04-LECLERC-3'])
-                await show_available_images(ctx, 3)
+                await show_available_images(ctx, client, 3)
                 db["monaco-"+team+"-lap"] = 3
             return
         elif ctx.content == '$finish-hunt-aliceguo':
-            await ctx.channel.send('FINISH HUNT ALICE GUO')
-            await utils.add_team_roles(ctx.guild, teamRole, officialRoles['LEG04-MONACO-HUNT'])
-            # TODO: dapat track the LEVEL of the person
+            if db["monaco-"+team+"-lap"] == 3:
+                await ctx.channel.send('TODO: Insert PNG Clue Here') # TODO: Insert PNG clue here
+                await utils.add_team_roles(ctx.guild, teamRole, officialRoles['LEG04-MONACO-HUNT'])
+            return
         elif ctx.content == '$finish-lap1-sector3':
-            await ctx.channel.send('FINISH LAP 1 SECTOR 3 SUCCESS') # TODO: Insert PNG here
-            mainLobby = client.get_channel(officialThreads['LAB'])
-            timeNow = datetime.now().astimezone(MANILA_TZ).strftime(r"%I:%M:%S %p")
-            await mainLobby.send(f'🏁 RACERS, START YOUR ENGINES...\n{timeNow}') #Update with correct update
-            # TODO: dapat track the LEVEL of the person
+            # They need to do this once only.
+            if team not in db["monaco-lap1-ranking"]:
+                db["monaco-lap1-ranking"].append(team)
+                await ctx.channel.send('TODO: Insert PNG Clue Here') # TODO: Insert PNG here
+                mainLobby = client.get_channel(officialThreads['LAB']) # TODO: Change to MAIN-LOBBY
+                timeNow = datetime.now().astimezone(MANILA_TZ).strftime(r"%I:%M:%S %p")
+                embed = discord.Embed(title=f":checkered_flag: **F1 RACE** ", description="", color=0xffffff)
+                embed.add_field(name="Current Position", value=db["monaco-lap1-ranking"].index(team)+1, inline=False)
+                embed.add_field(name="Team", value=team, inline=False)
+                embed.add_field(name="Lap", value="1", inline=True)
+                embed.add_field(name="Time", value=f"{timeNow}", inline=True)
+                embed.set_thumbnail(url="https://i.ibb.co/FsTLB5y/annyeongjutseyo.png")
+                await mainLobby.send(embed=embed)
         elif ctx.content == '$finish-2ndlap-sector3':
-            await ctx.channel.send('FINISH LAP 2 SECTOR 3 SUCCESS') # TODO: Insert PNG here
-            mainLobby = client.get_channel(officialThreads['LAB']) # TODO: Change to MAIN-LOBBY
-            timeNow = datetime.now().astimezone(MANILA_TZ).strftime(r"%I:%M:%S %p")
-            embed = discord.Embed(title=f":checkered_flag: **F1 RACE** ", description="", color=0xffffff)
-            embed.add_field(name="Position", value="Currently 1st", inline=False)
-            embed.add_field(name="Team", value=team, inline=False)
-            embed.add_field(name="Lap", value="1", inline=True)
-            embed.add_field(name="Time", value=f"{timeNow}", inline=True)
-            embed.set_thumbnail(url="https://i.ibb.co/FsTLB5y/annyeongjutseyo.png")
-            await mainLobby.send(embed=embed) #Update with correct update
-            # TODO: dapat track the LEVEL of the person
+            # They need to do this once only.
+            if team not in db["monaco-lap2-ranking"]:
+                db["monaco-lap1-ranking"].append(team)
+                await ctx.channel.send('TODO: Insert PNG Clue Here') # TODO: Insert PNG here
+                mainLobby = client.get_channel(officialThreads['LAB']) # TODO: Change to MAIN-LOBBY
+                timeNow = datetime.now().astimezone(MANILA_TZ).strftime(r"%I:%M:%S %p")
+                embed = discord.Embed(title=f":checkered_flag: **F1 RACE** ", description="", color=0xffffff)
+                embed.add_field(name="Current Position", value=db["monaco-lap2-ranking"].index(team)+1, inline=False)
+                embed.add_field(name="Team", value=team, inline=False)
+                embed.add_field(name="Lap", value="2", inline=True)
+                embed.add_field(name="Time", value=f"{timeNow}", inline=True)
+                embed.set_thumbnail(url="https://i.ibb.co/FsTLB5y/annyeongjutseyo.png")
+                await mainLobby.send(embed=embed)
             
     # -- INSTAGRAM TASK FOR CHARLES LECLERC
     if ctx.channel.id == officialThreads['LEG04-LECLERC-1'] and ctx.content.startswith("$charles-lap1 ") and currentLap == 1:
-        await claim_image(ctx, 1, ctx.content.split(" ")[1].upper())
+        await claim_image(ctx, 1, ctx.content.split(" ")[1].upper(), client)
     elif ctx.channel.id == officialThreads['LEG04-LECLERC-2'] and ctx.content.startswith("$charles-2ndlap ") and currentLap == 2:
-        await claim_image(ctx, 2, ctx.content.split(" ")[1].upper())
+        await claim_image(ctx, 2, ctx.content.split(" ")[1].upper(), client)
     elif ctx.channel.id == officialThreads['LEG04-LECLERC-3'] and ctx.content.startswith("$charles-finallap ") and currentLap == 3:
-        await claim_image(ctx, 3, ctx.content.split(" ")[1].upper())
-    #elif ctx.content.startswith("$charles-all "):
-    #    await show_available_images(ctx, int(ctx.content.split(" ")[1]))
+        await claim_image(ctx, 3, ctx.content.split(" ")[1].upper(), client)
+    elif ctx.channel.id in [officialThreads['LEG04-LECLERC-1'], officialThreads['LEG04-LECLERC-2'], officialThreads['LEG04-LECLERC-3']] and ctx.content.startswith("$charles-all "):
+        lapLevel = db["monaco-"+team+"-lap"]
+        if lapLevel == 0:
+            #do nothing
+            return
+        await show_available_images(ctx, client, lapLevel)
