@@ -56,16 +56,20 @@ async def on_message(ctx):
     # -- Detour Roles
     if ctx.channel.id in TEAMCHANNELIDS and ctx.content == '$oligarchy-dt':
         await utils.add_role(ctx.guild, ctx.author, officialRoles['LEG01-DT-OLIGARCHY'])
+        return
     elif ctx.channel.id in TEAMCHANNELIDS and ctx.content == '$dt-piracy':
         await utils.add_role(ctx.guild, ctx.author, officialRoles['LEG01-DT-PIRACY'])
+        return
 
     # -- Kampongs
     if ctx.channel.id in TEAMCHANNELIDS and ctx.content.startswith('$kampong-'):
         await leg01boats.process_message(ctx)
+        return
 
     # -- Oils
     if ctx.channel.id in [officialThreads["LEG01-DT-OLIGARCHY"], LAB] and ctx.content.startswith('$'):
         await leg01oils.process_message(ctx)
+        return
     #'''
 
     # ======== LEG 02 ==========
@@ -73,6 +77,7 @@ async def on_message(ctx):
     # -- Detour Roles
     if ctx.content.startswith('$against-sea'):
         await utils.add_role(ctx.guild, ctx.author, officialRoles['LEG02-DT-SEAWALL'])
+        return
 
     # -- Seawall
     if ctx.channel.id in [officialThreads["LEG02-DT-SEAWALL"], LAB]:
@@ -87,13 +92,17 @@ async def on_message(ctx):
     #'''
     
     # ======== LEG 06 ==========
-    '''
+    #'''
+    # -- Detour Roles
+    if ctx.content.startswith('$banjul-port'):
+        await utils.add_role(ctx.guild, ctx.author, officialRoles['LEG06-NEURALINK'])
+        return
     if ctx.channel.id in [officialThreads["LEG06-NEURALINK"], LAB]:
-        await leg06crates.process_message(ctx)
-    '''
+        await leg06crates.process_message(ctx, client)
+    #'''
     
     # ======== LEG 07 ==========
-    #'''
+    '''
     if (ctx.channel.id in TEAMCHANNELIDS or ctx.channel.id == 1288522309149261914) and ctx.content.startswith('$'):
         await leg07phosphate.process_message(ctx)
     #'''

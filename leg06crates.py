@@ -1,6 +1,7 @@
 import discord
 import random
 import string
+import json
 from replit import db
 
 # List of Teams
@@ -15,47 +16,54 @@ TEAMS = {
   'JUTS_SIMPLE_LIFE',
   'JUTS_ANNYEONG_JUTSEYO',
   'JUTS_TEAM_1',
-  'JUTS_TEAM_2'
+  'JUTS_TEAM_2',
+  'JUTS_TEAM_3'
 }
+
+with open('official-roles.json') as f:
+  officialRoles = json.load(f)
+
+with open('official-threads.json') as f:
+  officialThreads = json.load(f)
 
 # CRATES with image URLs for each one
 # CRATES with specific image placeholders for each crate
 CRATES = {
-    "leg_1_crate_1": {"leg": "Leg 1", "image": "https://i.ibb.co/GnQTGq0/01-Medal-of-Valor-Brunei.png"},
-    "leg_1_crate_2": {"leg": "Leg 1", "image": "https://i.ibb.co/6RK0Vmw/01-Selos-Roadblock.png"},
-    "leg_1_crate_3": {"leg": "Leg 1", "image": "https://i.ibb.co/PC9hwgL/01-Mercu-Dirgahayu.png"},
-    "leg_1_crate_4": {"leg": "Leg 1", "image": "https://i.ibb.co/HpDWw5q/01-Tempered-Glass.png"},
-    "leg_1_crate_5": {"leg": "Leg 1", "image": "https://i.ibb.co/5R9r2Tw/01-Kampong-North.png"},
+    "leg_1_crate_1": {"leg": "Leg 1", "image": "https://i.ibb.co/vBWz4mc/robin.png"},
+    "leg_1_crate_2": {"leg": "Leg 1", "image": "https://i.ibb.co/DGVT4gk/sohighschool.png"},
+    "leg_1_crate_3": {"leg": "Leg 1", "image": "https://i.ibb.co/HBr9Y9h/prophecy.png"},
+    "leg_1_crate_4": {"leg": "Leg 1", "image": "https://i.ibb.co/B4cnHz0/peter.png"},
+    "leg_1_crate_5": {"leg": "Leg 1", "image": "https://i.ibb.co/6NYRpnL/loml.png"},
 
-    "leg_2_crate_1": {"leg": "Leg 2", "image": "https://i.ibb.co/8XrFVdx/02-Umbrella.png"},
-    "leg_2_crate_2": {"leg": "Leg 2", "image": "https://i.ibb.co/Lr5FQTc/02-I-Beams.png"},
-    "leg_2_crate_3": {"leg": "Leg 2", "image": "https://i.ibb.co/xhynMPN/02-Sacred-Heart.png"},
-    "leg_2_crate_4": {"leg": "Leg 2", "image": "https://i.ibb.co/wNPfdmV/02-Polaroid-Cameras.png"},
-    "leg_2_crate_5": {"leg": "Leg 2", "image": "https://i.ibb.co/3S23vWJ/02-Buoy.png"},
+    "leg_2_crate_1": {"leg": "Leg 2", "image": "https://i.ibb.co/hDXnPC6/thankyouaimee.png"},
+    "leg_2_crate_2": {"leg": "Leg 2", "image": "https://i.ibb.co/tQK7tX6/imgonnagetyouback.png"},
+    "leg_2_crate_3": {"leg": "Leg 2", "image": "https://i.ibb.co/WB6kj8H/clarabow.png"},
+    "leg_2_crate_4": {"leg": "Leg 2", "image": "https://i.ibb.co/zPb82WN/blackdog.png"},
+    "leg_2_crate_5": {"leg": "Leg 2", "image": "https://i.ibb.co/pZLdxm0/alchemy.png"},
 
-    "leg_3_crate_1": {"leg": "Leg 3", "image": "https://i.ibb.co/GMRK24D/03-Qatar-Sandwich.png"},
-    "leg_3_crate_2": {"leg": "Leg 3", "image": "https://i.ibb.co/Bntq82Q/03-Agal.png"},
-    "leg_3_crate_3": {"leg": "Leg 3", "image": "https://i.ibb.co/QpkJBsv/03-Gear.png"},
-    "leg_3_crate_4": {"leg": "Leg 3", "image": "https://i.ibb.co/kSJGr9Y/03-Planggana.png"},
-    "leg_3_crate_5": {"leg": "Leg 3", "image": "https://i.ibb.co/QmpTD0Z/03-David-Star.png"},
+    "leg_3_crate_1": {"leg": "Leg 3", "image": "https://i.ibb.co/G3sr3bF/smallestman.png"},
+    "leg_3_crate_2": {"leg": "Leg 3", "image": "https://i.ibb.co/N9xM8LS/fortnight.png"},
+    "leg_3_crate_3": {"leg": "Leg 3", "image": "https://i.ibb.co/4PCrhWg/chloeorsam.png"},
+    "leg_3_crate_4": {"leg": "Leg 3", "image": "https://i.ibb.co/Rz259YK/cassandra.png"},
+    "leg_3_crate_5": {"leg": "Leg 3", "image": "https://i.ibb.co/N3BTVK5/brokenheart.png"},
 
-    "leg_4_crate_1": {"leg": "Leg 4", "image": "https://i.ibb.co/ftpB9XP/04-Charles-Leclerc-IG.png"},
-    "leg_4_crate_2": {"leg": "Leg 4", "image": "https://i.ibb.co/NpnPjpt/04-Popcorn.png"},
-    "leg_4_crate_3": {"leg": "Leg 4", "image": "https://i.ibb.co/Jyf8kwd/04-Ferrari.png"},
-    "leg_4_crate_4": {"leg": "Leg 4", "image": "https://i.ibb.co/7YGBJcK/04-Direction-Circuit-Map.png"},
-    "leg_4_crate_5": {"leg": "Leg 4", "image": "https://i.ibb.co/0VxJpxc/04-Hydraulic-Jack.png"},
+    "leg_4_crate_1": {"leg": "Leg 4", "image": "https://i.ibb.co/xhcSBw2/torturedpoets.png"},
+    "leg_4_crate_2": {"leg": "Leg 4", "image": "https://i.ibb.co/m5qw9fy/ihateithere.png"},
+    "leg_4_crate_3": {"leg": "Leg 4", "image": "https://i.ibb.co/bv499SV/freshout.png"},
+    "leg_4_crate_4": {"leg": "Leg 4", "image": "https://i.ibb.co/vzpcPMs/butdaddy.png"},
+    "leg_4_crate_5": {"leg": "Leg 4", "image": "https://i.ibb.co/sFc8hZK/bolter.png"},
 
-    "leg_5_crate_1": {"leg": "Leg 5", "image": "https://i.ibb.co/5RVmv78/wall.png"},
-    "leg_5_crate_2": {"leg": "Leg 5", "image": "https://i.ibb.co/5RVmv78/wall.png"},
-    "leg_5_crate_3": {"leg": "Leg 5", "image": "https://i.ibb.co/5RVmv78/wall.png"},
-    "leg_5_crate_4": {"leg": "Leg 5", "image": "https://i.ibb.co/5RVmv78/wall.png"},
-    "leg_5_crate_5": {"leg": "Leg 5", "image": "https://i.ibb.co/5RVmv78/wall.png"},
+    "leg_5_crate_1": {"leg": "Leg 5", "image": "https://i.ibb.co/cxS29dL/whosafraid.png"},
+    "leg_5_crate_2": {"leg": "Leg 5", "image": "https://i.ibb.co/Mcq3F4h/solonglondon.png"},
+    "leg_5_crate_3": {"leg": "Leg 5", "image": "https://i.ibb.co/HgF1t5B/myboyonly.png"},
+    "leg_5_crate_4": {"leg": "Leg 5", "image": "https://i.ibb.co/CHRdknM/ilookinpeoples.png"},
+    "leg_5_crate_5": {"leg": "Leg 5", "image": "https://i.ibb.co/qy34qnZ/downbad.png"},
 
-    "leg_6_crate_1": {"leg": "Leg 6", "image": "https://i.ibb.co/FVjGPYZ/06-Safety-Vest.png"},
-    "leg_6_crate_2": {"leg": "Leg 6", "image": "https://i.ibb.co/Y0pRC70/06-Rocket.png"},
-    "leg_6_crate_3": {"leg": "Leg 6", "image": "https://i.ibb.co/MRPBhjJ/06-Kora.png"},
-    "leg_6_crate_4": {"leg": "Leg 6", "image": "https://i.ibb.co/100XwrV/06-Bananas.png"},
-    "leg_6_crate_5": {"leg": "Leg 6", "image": "https://i.ibb.co/QQ1s7mP/06-Kapuso.png"}
+    "leg_6_crate_1": {"leg": "Leg 6", "image": "https://i.ibb.co/w6mYV8T/icanfixhim.png"},
+    "leg_6_crate_2": {"leg": "Leg 6", "image": "https://i.ibb.co/S6KDtDb/howdiditend.png"},
+    "leg_6_crate_3": {"leg": "Leg 6", "image": "https://i.ibb.co/kq1JdX1/guiltyassin.png"},
+    "leg_6_crate_4": {"leg": "Leg 6", "image": "https://i.ibb.co/XtJzBN9/florida.png"},
+    "leg_6_crate_5": {"leg": "Leg 6", "image": "https://i.ibb.co/vx10h1B/albatross.png"}
 }
 
 # Function to get team ID based on user roles
@@ -125,8 +133,11 @@ async def claim_crate(msg):
         # Check if the team already has a crate from the same leg
         crate_leg = CRATES[crate]["leg"]
         if any(CRATES[c]["leg"] == crate_leg for c in pontoon):
-            await msg.channel.send(f"{msg.author.mention}, you already have a crate from that leg! All your crates are returned upstream.")
             db["pontoons"][team] = []  # Clear the team's pontoon
+            db["unclaimed_crates"].remove(crate) # Remove the claimed crate from the unclaimed list
+            del released_crates[command]  # Remove the claimed crate command
+            db["last_released_crates"] = released_crates  # Update the released crates
+            await msg.channel.send(f"{msg.author.mention}, you already have a crate from that leg! All your crates are returned upstream.")
         else:
             pontoon.append(crate)
             db["pontoons"][team] = pontoon
@@ -146,7 +157,7 @@ async def claim_crate(msg):
 ## ENTRY FUNCTION ##
 ####################
 # Function to process user messages and return results as an embed message
-async def process_message(message):
+async def process_message(message, client):
 
     author = message.author
     team = get_team_id(author)
@@ -163,7 +174,8 @@ async def process_message(message):
         await message.channel.send("The game has been reset.")
 
     if message.content.startswith("$crate-release") and "GOLD_HOSTS" in [role.name for role in message.author.roles]:
-        await manual_crate_release(message.channel)
+        banjulPort = client.get_channel(officialThreads['LEG06-NEURALINK']) # TODO: Change to MAIN-LOBBY
+        await manual_crate_release(banjulPort)
 
     if message.content.startswith("$crate-claim"):
         await claim_crate(message)
