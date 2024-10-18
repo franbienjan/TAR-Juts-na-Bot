@@ -82,7 +82,8 @@ async def on_message(ctx):
     # ======== LEG 04 ==========
     #'''
     # -- Everything Leg 04 is here.
-    await leg04instagram.process_message(ctx, client)
+    if ctx.content.startswith('$'):
+        await leg04instagram.process_message(ctx, client)
     #'''
     
     # ======== LEG 06 ==========

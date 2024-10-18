@@ -20,7 +20,13 @@ TEAMS = {
   'JUTS_SIMPLE_LIFE',
   'JUTS_ANNYEONG_JUTSEYO',
   'JUTS_TEAM_1',
-  'JUTS_TEAM_2'
+  'JUTS_TEAM_2',
+  'JUTS_TEAM_3'
+}
+
+# TODO: TEAM PHOTOS
+TEAMPHOTOS = {
+
 }
 
 TEAMCHANNELIDS = [
@@ -154,9 +160,6 @@ async def claim_image(ctx, level, code, client):
     images = db[images_key]
     available_images = images[:4] if level == 2 else images[:(db["monaco-lap3-ig"] + 1)] if level == 3 else images
 
-    print(code)
-    print(level)
-    print(available_images)
     # Check if the provided code matches an available image
     for img in available_images:
         if img["code"] == code:
@@ -167,24 +170,16 @@ async def claim_image(ctx, level, code, client):
             embed = discord.Embed(title="Success", description=f"Image {code} has been successfully claimed by **{team}**!", color=discord.Color.green())
             embed.set_image(url=img["url"])
             await ctx.channel.send(embed=embed)
-            await ctx.author.send("UPDATE THIS WITH THE CLUE") # TODO: Add proper clue
+            pmMsg = ""
+            if level == 1:
+                pmMsg = 'Post this clue in your FB Messenger Team GC! Once done, you will receive the photo where you will count the chequered flags.\nhttps://i.ibb.co/TtTkpPb/0405a-RI-Counting-Flags.png'
+            elif level == 2:
+                pmMsg = 'Post this clue in your FB Messenger Team GC!\nhttps://i.ibb.co/h9TFzmm/0409a-RI-Quiz.png'
+            elif level == 3:
+                pmMsg = 'Post this clue in your FB Messenger Team GC!\nTODO: TBA LEVEL 3'
+            await ctx.author.send(pmMsg)
             await show_available_images(ctx, client, level)
             await utils.remove_team_roles(ctx.guild, teamRole, officialRoles[f'LEG04-LECLERC-{level}'])
-
-            # Replace images based on the level
-            '''
-            if level == 2 and len(images) < 4:
-                print("pumapasok ba here")
-                new_image = LEVEL_2_IMAGES.pop(0)
-                images.append(new_image)
-                await ctx.channel.send(embed=discord.Embed(description="A new image has been added to Level 2.", color=discord.Color.blue()))
-            elif level == 3 and len(images) < (db["monaco-lap3-ig"] + 1):
-                print("parang wala naman?")
-                new_image = LEVEL_3_IMAGES.pop(0)
-                images.append(new_image)
-                await ctx.channel.send(embed=discord.Embed(description="A new image has been added to Level 3.", color=discord.Color.blue()))
-            '''
-            return
 
 # Function to show all available images for a specific level
 async def show_available_images(ctx, client, level):
@@ -195,10 +190,10 @@ async def show_available_images(ctx, client, level):
     elif level == 2:
         images = db.get("level2_images", [])[:4]  # Show first 4
         command = "$charles-2ndlap xxxxxxxx"
-        leclercChannel = client.get_channel(officialThreads['LEG04-LECLERC-1'])
+        leclercChannel = client.get_channel(officialThreads['LEG04-LECLERC-2'])
     elif level == 3:
         command = "$charles-finallap xxxxxxxx"
-        leclercChannel = client.get_channel(officialThreads['LEG04-LECLERC-1'])
+        leclercChannel = client.get_channel(officialThreads['LEG04-LECLERC-3'])
         images = db.get("level3_images", [])[:(db["monaco-lap3-ig"] + 1)]  # Show based on teams ON LEVEL 3
     else:
         embed = discord.Embed(title="Error", description="Invalid level number.", color=discord.Color.red())
@@ -243,15 +238,14 @@ async def process_message(ctx, client):
             return
         elif ctx.content == '$enter-lap1-sector2':
             if db["monaco-"+team+"-lap"] == 0:
-                await ctx.channel.send('TODO: Insert PNG Clue Here') # TODO: Insert PNG here
+                await ctx.channel.send('https://i.ibb.co/X4pg5Bv/0404-RI-Leclerc-P1.png')
                 await utils.add_team_roles(ctx.guild, teamRole, officialRoles['LEG04-LECLERC-1'])
                 await show_available_images(ctx, client, 1)
                 db["monaco-"+team+"-lap"] = 1
             return
         elif ctx.content == '$enter-2ndlap-sector2':
-            print(db["monaco-"+team+"-lap"])
             if db["monaco-"+team+"-lap"] == 1:
-                await ctx.channel.send('TODO: Insert PNG Clue Here') # TODO: Insert PNG here
+                await ctx.channel.send('https://i.ibb.co/SX1CQHB/0408-RI-Leclerc-P2.png')
                 await utils.add_team_roles(ctx.guild, teamRole, officialRoles['LEG04-LECLERC-2'])
                 await show_available_images(ctx, client, 2)
                 db["monaco-"+team+"-lap"] = 2
@@ -259,7 +253,7 @@ async def process_message(ctx, client):
         elif ctx.content == '$enter-finallap-sector2':
             if db["monaco-"+team+"-lap"] == 2:
                 db["monaco-lap3-ig"] = db["monaco-lap3-ig"] + 1
-                await ctx.channel.send('TODO: Insert PNG Clue Here') # TODO: Insert PNG clue here
+                await ctx.channel.send('https://i.ibb.co/2YsKYK3/0412-RI-Leclerc-P3.png')
                 await utils.add_team_roles(ctx.guild, teamRole, officialRoles['LEG04-LECLERC-3'])
                 await show_available_images(ctx, client, 3)
                 db["monaco-"+team+"-lap"] = 3
@@ -273,7 +267,7 @@ async def process_message(ctx, client):
             # They need to do this once only.
             if team not in db["monaco-lap1-ranking"]:
                 db["monaco-lap1-ranking"].append(team)
-                await ctx.channel.send('TODO: Insert PNG Clue Here') # TODO: Insert PNG here
+                await ctx.channel.send('https://i.ibb.co/TMTx5Dk/0406-RB-Primer-Eyes.png')
                 mainLobby = client.get_channel(officialThreads['LAB']) # TODO: Change to MAIN-LOBBY
                 timeNow = datetime.now().astimezone(MANILA_TZ).strftime(r"%I:%M:%S %p")
                 embed = discord.Embed(title=f":checkered_flag: **F1 RACE** ", description="", color=0xffffff)
@@ -286,8 +280,8 @@ async def process_message(ctx, client):
         elif ctx.content == '$finish-2ndlap-sector3':
             # They need to do this once only.
             if team not in db["monaco-lap2-ranking"]:
-                db["monaco-lap1-ranking"].append(team)
-                await ctx.channel.send('TODO: Insert PNG Clue Here') # TODO: Insert PNG here
+                db["monaco-lap2-ranking"].append(team)
+                await ctx.channel.send('https://i.ibb.co/sRT9XfX/0410-RB-Primer.png')
                 mainLobby = client.get_channel(officialThreads['LAB']) # TODO: Change to MAIN-LOBBY
                 timeNow = datetime.now().astimezone(MANILA_TZ).strftime(r"%I:%M:%S %p")
                 embed = discord.Embed(title=f":checkered_flag: **F1 RACE** ", description="", color=0xffffff)
@@ -305,7 +299,7 @@ async def process_message(ctx, client):
         await claim_image(ctx, 2, ctx.content.split(" ")[1].upper(), client)
     elif ctx.channel.id == officialThreads['LEG04-LECLERC-3'] and ctx.content.startswith("$charles-finallap ") and currentLap == 3:
         await claim_image(ctx, 3, ctx.content.split(" ")[1].upper(), client)
-    elif ctx.channel.id in [officialThreads['LEG04-LECLERC-1'], officialThreads['LEG04-LECLERC-2'], officialThreads['LEG04-LECLERC-3']] and ctx.content.startswith("$charles-all "):
+    elif ctx.channel.id in [officialThreads['LEG04-LECLERC-1'], officialThreads['LEG04-LECLERC-2'], officialThreads['LEG04-LECLERC-3']] and ctx.content.startswith("$charles-all"):
         lapLevel = db["monaco-"+team+"-lap"]
         if lapLevel == 0:
             #do nothing
@@ -315,6 +309,20 @@ async def process_message(ctx, client):
     if ctx.channel.id == officialThreads['LEG04-MONACO-HUNT'] and ctx.content.startswith("$"):
         location = ctx.content.split(" ")[0].upper()
         guess = ctx.content.split(" ")[1]
-        if db["monaco-pitstop"][location] == 0 and guess == PITSTOPANSWERS[location]:
-            print("edi congrats!")
+        if db["monaco-pitstop"][location] == 0 and guess == PITSTOPANSWERS[location] and team not in db["monaco-lap3-ranking"]:
             db["monaco-pitstop"][location] = 1
+            db["monaco-lap3-ranking"].append(team)
+            mainLobby = client.get_channel(officialThreads['LAB']) # TODO: Change to MAIN-LOBBY
+            timeNow = datetime.now().astimezone(MANILA_TZ).strftime(r"%I:%M:%S %p")
+            embed = discord.Embed(title=f":checkered_flag: **F1 RACE** ", description="", color=0xffffff)
+            embed.add_field(name="Final Position", value=db["monaco-lap3-ranking"].index(team)+1, inline=False)
+            embed.add_field(name="Team", value=team, inline=False)
+            embed.add_field(name="Lap", value="3", inline=True)
+            embed.add_field(name="Time", value=f"{timeNow}", inline=True)
+            embed.set_thumbnail(url="https://i.ibb.co/FsTLB5y/annyeongjutseyo.png")
+            await mainLobby.send(embed=embed)
+
+            embed = discord.Embed(title=f"Congratulations {team}!", description=f"You have now checked-in to the Pitstop.", color=discord.Color.green())
+            #embed.set_image(url=) #TODO: PLACE TEAM IMAGE HERE
+            await ctx.channel.send(embed=embed)
+            await utils.remove_team_roles(ctx.guild, teamRole, officialRoles[f'LEG04-MONACO-HUNT'])
