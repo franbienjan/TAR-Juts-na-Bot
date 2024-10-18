@@ -36,6 +36,16 @@ TEAMCHANNELIDS = [
     1296050222602129469 #SimpleLife
 ]
 
+PITSTOPANSWERS = {
+    "$FONTVIEILLE" : "0310",
+    "$JARDIN" : "0207",
+    "$LACONDAMINE" : "0913",
+    "$LAROUSSE" : "0114",
+    "$LARVOTTO" : "0506",
+    "$MONACOVILLE" : "0811",
+    "$MONTECARLO" : "0412"
+}
+
 LAB = 1065231788580012102
 
 with open('official-roles.json') as f:
@@ -111,6 +121,15 @@ async def monaco_reset(ctx):
     db["leclerc1-start"] = False
     db["leclerc2-start"] = False
     db["leclerc3-start"] = False
+    db["monaco-pitstop"] = {
+        "$FONTVIEILLE" : 0,
+        "$JARDIN" : 0,
+        "$LACONDAMINE" : 0,
+        "$LAROUSSE" : 0,
+        "$LARVOTTO" : 0,
+        "$MONACOVILLE" : 0,
+        "$MONTECARLO" : 0
+    }
     for team in TEAMS:
         db["monaco-"+team+"-lap"] = 0
     db["team_data"] = {team: {"level": 1, "claimed_images": []} for team in TEAMS}
@@ -292,3 +311,10 @@ async def process_message(ctx, client):
             #do nothing
             return
         await show_available_images(ctx, client, lapLevel)
+
+    if ctx.channel.id == officialThreads['LEG04-MONACO-HUNT'] and ctx.content.startswith("$"):
+        location = ctx.content.split(" ")[0].upper()
+        guess = ctx.content.split(" ")[1]
+        if db["monaco-pitstop"][location] == 0 and guess == PITSTOPANSWERS[location]:
+            print("edi congrats!")
+            db["monaco-pitstop"][location] = 1
